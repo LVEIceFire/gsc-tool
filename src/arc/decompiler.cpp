@@ -636,6 +636,9 @@ auto decompiler::decompile_instruction(instruction const& inst, bool last) -> vo
         }
         case opcode::OP_DecTop:
         {
+            if (stack_.empty())
+                throw decomp_error("stack underflow");
+
             if (stack_.top()->kind() != node::expr_new)
             {
                 auto exp = pop_stack_expr();
@@ -1110,6 +1113,9 @@ auto decompiler::decompile_instruction(instruction const& inst, bool last) -> vo
         }
         case opcode::OP_ScriptFunctionCallClass:
         {
+            if (stack_.empty())
+                throw decomp_error("stack underflow");
+
             if (stack_.top()->kind() != node::expr_new || inst.data[0] != "__constructor")
             {
                 auto args = expr_arguments::make(loc);
@@ -1130,6 +1136,9 @@ auto decompiler::decompile_instruction(instruction const& inst, bool last) -> vo
         }
         case opcode::OP_ScriptThreadCallClass:
         {
+            if (stack_.empty())
+                throw decomp_error("stack underflow");
+
             if (stack_.top()->kind() != node::expr_new)
             {
                 auto args = expr_arguments::make(loc);
@@ -2721,6 +2730,9 @@ auto decompiler::process_expr_identifier(expr_identifier& exp) -> void
 
 auto decompiler::pop_stack_node() -> node::ptr
 {
+    if (stack_.empty())
+        throw decomp_error("stack underflow");
+
     auto value = std::move(stack_.top());
     stack_.pop();
     return value;
