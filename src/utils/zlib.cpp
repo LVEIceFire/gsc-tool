@@ -33,11 +33,11 @@ auto zlib::compress(std::vector<u8> const& data) -> std::vector<u8>
 
 auto zlib::decompress(std::vector<u8> const& data, const u32 length) -> std::vector<u8>
 {
-    // Stream into fixed chunks and reject corrupt script lengths before allocating them.
+    // Stream into fixed chunks instead of allocating the declared output size up front.
     constexpr auto chunk_size = usize{ 64 * 1024 };
 
-    if (constexpr auto max_output_size = usize{ 256 * 1024 * 1024 }; length > max_output_size || data.size() > std::numeric_limits<uInt>::max())
-        throw error("zlib decompress error: size limit exceeded");
+    if (data.size() > std::numeric_limits<uInt>::max())
+        throw error("zlib decompress error: input size limit exceeded");
 
     auto stream = z_stream{};
     stream.next_in = reinterpret_cast<Bytef const*>(data.data());
